@@ -273,7 +273,7 @@ const AuthScreen = (props) => {
                         value={password}
                         onChangeText={(text) => inputChangeHandler(text, 3) }
                     />
-                    <Image style={styles.inputIcon} source={{ uri: 'https://img.icons8.com/nolan/40/000000/key.png' }} />
+                    <Image style={styles.inputIcon} source={{ uri: 'https://i.ibb.co/VQ1wXzW/visible.png' }} />
                 </View>
 
                 <TouchableOpacity 
