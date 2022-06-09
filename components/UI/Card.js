@@ -36,6 +36,8 @@ const Card = (props) => {
   const [imgWidth, setImgWidth] = useState();
   const [imgHeight, setImgHeight] = useState();
 
+  const [isShowSetting, setIsShowSetting] = useState(false);
+
   const onImageErrorHandler = () => {
     setImageUri(ENV.defaultImageUri);
   };
@@ -69,6 +71,10 @@ const Card = (props) => {
     return match;
   };
 
+  const toggleSetting = () => {
+    setIsShowSetting(!isShowSetting);
+  };
+
   const toggleLike = async () => {
     props.toggleLikeHandler(post._id, checkLike());
   };
@@ -94,13 +100,12 @@ const Card = (props) => {
           ? undefined
           : TouchableNativeFeedback.Ripple('#b3b3b3')
       }
-      onPress={() =>
-        fromUserProfile
-          ? {}
-          : navigation.navigate('UserProfile', {
-              userId: post.postedBy._id,
-              name: post.postedBy.name,
-            })
+      onPress={
+        () => (fromUserProfile ? {} : {})
+        // : navigation.navigate('UserProfile', {
+        //     userId: post.postedBy._id,
+        //     name: post.postedBy.name,
+        //   })
       }
     >
       <View style={styles.card}>
@@ -159,32 +164,25 @@ const Card = (props) => {
                 {' '}
                 {timeDifference(new Date(), new Date(post.created))}{' '}
               </Text>
+              {post.postedBy._id === userId && (
+                <View>
+                  <TouchableOpacity
+                    style={styles.socialBarButton}
+                    onPress={toggleSetting}
+                  >
+                    <Ionicons
+                      name="md-settings"
+                      size={24}
+                      style={{ marginLeft: 5 }}
+                      color={checkLike() ? 'red' : 'black'}
+                    />
+                  </TouchableOpacity>
+                </View>
+              )}
             </View>
           </View>
         </View>
-        <View style={styles.cardImageContainer}>
-          <Image
-            style={{ ...styles.cardImage, height: imgHeight }}
-            source={{
-              uri: `${ENV.apiUrl}/post/photo/${post._id}?${new Date(
-                post.updated
-              )}`,
-            }}
-            onLoad={() => setIsImageLoading(false)}
-          />
-          <ActivityIndicator
-            style={{
-              position: 'absolute',
-              left: 0,
-              right: 0,
-              top: 0,
-              bottom: 0,
-            }}
-            animating={isImageLoading}
-            size="large"
-            color={Colors.brightBlue}
-          />
-        </View>
+
         <View style={styles.cardHeader}>
           <View>
             <Text style={styles.title}>{post.title ? post.title : ''}</Text>
@@ -197,6 +195,7 @@ const Card = (props) => {
                       style={{ color: Colors.brightBlue }}
                       onPress={() => setShowFullBody((prevState) => !prevState)}
                     >
+                      {' '}
                       Read Less
                     </Text>
                   </Text>
@@ -217,6 +216,29 @@ const Card = (props) => {
             )}
           </View>
         </View>
+        <View style={styles.cardImageContainer}>
+          <Image
+            style={{ ...styles.cardImage }}
+            source={{
+              uri: `${ENV.apiUrl}/post/photo/${post._id}?${new Date(
+                post.updated
+              )}`,
+            }}
+            onLoad={() => setIsImageLoading(false)}
+          />
+          <ActivityIndicator
+            style={{
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              top: 0,
+              bottom: 0,
+            }}
+            animating={isImageLoading}
+            size="large"
+            color={Colors.brightBlue}
+          />
+        </View>
 
         <View style={styles.cardFooter}>
           <View style={styles.socialBarContainer}>
@@ -226,10 +248,10 @@ const Card = (props) => {
                 onPress={toggleLike}
               >
                 <Ionicons
-                  name="md-thumbs-up"
+                  name="md-heart"
                   size={24}
                   style={{ marginRight: 5 }}
-                  color={checkLike() ? 'blue' : 'black'}
+                  color={checkLike() ? 'red' : 'black'}
                 />
                 <Text style={styles.socialBarLabel}> {post.likes.length} </Text>
               </TouchableOpacity>
@@ -287,22 +309,8 @@ const Card = (props) => {
             </Text>
           )}
         </TouchableOpacity>
-        {post.postedBy._id === userId && (
+        {isShowSetting && post.postedBy._id === userId && (
           <View style={styles.postActions}>
-            <View style={styles.socialBarSection}>
-              <TouchableOpacity
-                style={styles.socialBarButton}
-                onPress={deleteHandler.bind(this, post._id)}
-              >
-                <MaterialCommunityIcons
-                  name="delete"
-                  size={20}
-                  style={{ marginRight: 5 }}
-                  color="red"
-                />
-                <Text style={styles.socialBarLabel}>Delete</Text>
-              </TouchableOpacity>
-            </View>
             <View style={styles.socialBarSection}>
               <TouchableOpacity
                 style={styles.socialBarButton}
@@ -319,6 +327,21 @@ const Card = (props) => {
                 <Text style={styles.socialBarLabel}>Edit</Text>
               </TouchableOpacity>
             </View>
+            <View style={styles.socialBarSection}>
+              <TouchableOpacity
+                style={styles.socialBarButton}
+                onPress={deleteHandler.bind(this, post._id)}
+              >
+                <MaterialCommunityIcons
+                  name="delete"
+                  size={20}
+                  style={{ marginRight: 5 }}
+                  color="red"
+                />
+                <Text style={styles.socialBarLabel}>Delete</Text>
+              </TouchableOpacity>
+            </View>
+            
           </View>
         )}
       </View>
@@ -346,13 +369,16 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   cardTitleHeader: {
-    paddingVertical: 15,
+    paddingTop: 15,
+    paddingBottom: 10,
     paddingHorizontal: 5,
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#F9F9F9',
   },
   cardHeader: {
-    paddingTop: 16,
+    paddingTop: 5,
     paddingHorizontal: 16,
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -374,16 +400,20 @@ const styles = StyleSheet.create({
     backgroundColor: '#c2c2c2',
     flex: 1,
     display: 'flex',
+    borderRadius: 20,
+    overflow: 'hidden',
+    marginHorizontal: 5,
     // height: 275
   },
   cardImage: {
     flex: 1,
-    height: 100,
+    height: 250,
     width: null,
+    resizeMode: 'cover',
   },
   /******** card components **************/
   title: {
-    fontSize: 18,
+    fontSize: 15,
     flex: 1,
   },
   description: {
@@ -416,21 +446,39 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   socialBarSection: {
-    marginRight: 20,
+    marginRight: 10,
+    marginBottom: 5,
+    paddingBottom: 3,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.grayColor
   },
   socialBarlabel: {
     marginLeft: 20,
   },
   socialBarButton: {
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     alignItems: 'center',
+
   },
   postActions: {
+    position: 'absolute',
+    top: 50,
+    right: 30,
     borderTopColor: '#c2c2c2',
     borderTopWidth: 1,
-    flexDirection: 'row',
+    flexDirection: 'column',
     padding: 15,
+    backgroundColor: 'white',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    shadowOpacity: 0.34,
+    shadowRadius: 6.27,
+
+    elevation: 10,
   },
 });
 

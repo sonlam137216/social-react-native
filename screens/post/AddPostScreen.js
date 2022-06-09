@@ -158,7 +158,10 @@ const AddPostScreen = (props) => {
                             placeholder="Body"
                             underlineColorAndroid='transparent'
                             value={body}
-                            onChangeText={(text) => setBody(text) }
+                            multiline={true}
+                            numberOfLines={4}
+                            onChangeText={(text) => setBody(text)
+                            }
                         />
                     </View>
                     <TouchableOpacity 
