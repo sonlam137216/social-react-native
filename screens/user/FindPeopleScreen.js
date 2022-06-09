@@ -1,11 +1,5 @@
-import React, {useState,useEffect, useCallback} from 'react';
-import {
-    StyleSheet,
-    Text,
-    View,
-    FlatList,
-    ActivityIndicator,
-} from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { StyleSheet, Text, View, FlatList, ActivityIndicator } from 'react-native';
 
 import UserList from '../../components/UI/UserList';
 import { useDispatch, useSelector } from 'react-redux';
@@ -16,8 +10,7 @@ import { Container, Header, Item, Input, Icon, Button } from 'native-base';
 import VerifiedUser from '../../constants/VerifiedUser';
 
 const FindPeopleScreen = (props) => {
-
-    const findPeopleUsers = useSelector(state => state.users.findPeople);
+    const findPeopleUsers = useSelector((state) => state.users.findPeople);
 
     const [isLoading, setIsLoading] = useState(false);
     const [isRefreshing, setIsRefreshing] = useState(false);
@@ -27,31 +20,27 @@ const FindPeopleScreen = (props) => {
 
     const dispatch = useDispatch();
 
-
     const loadFindPeople = useCallback(async () => {
         setError(null);
         setIsRefreshing(true);
         try {
             const result = await dispatch(usersActions.fetchFindPeopleUsers());
-            let verifiedUsers =  result.filter(e => VerifiedUser.verifiedUsersId.includes(e._id));
-            let otherUsers = result.filter(e => !VerifiedUser.verifiedUsersId.includes(e._id));
+            let verifiedUsers = result.filter((e) => VerifiedUser.verifiedUsersId.includes(e._id));
+            let otherUsers = result.filter((e) => !VerifiedUser.verifiedUsersId.includes(e._id));
             let updatedResult = [...verifiedUsers, ...otherUsers];
             setData(updatedResult);
         } catch (err) {
             setError(err.message);
         }
         setIsRefreshing(false);
-    }, [dispatch, setIsLoading, setError])
+    }, [dispatch, setIsLoading, setError]);
 
-    
     useEffect(() => {
         setIsLoading(true);
-        loadFindPeople()
-        .then(() => {
+        loadFindPeople().then(() => {
             setIsLoading(false);
         });
-    }, [dispatch, loadFindPeople])
-
+    }, [dispatch, loadFindPeople]);
 
     // useEffect(() => {
     //     const unsubscribe = props.navigation.addListener('focus', e => {
@@ -63,14 +52,13 @@ const FindPeopleScreen = (props) => {
     //     };
     // }, [])
 
-
     const handleSearchTextChange = (text) => {
         setSearchText(text);
-        if(text !== ''){
-            let filteredData = []
+        if (text !== '') {
+            let filteredData = [];
             let currData = findPeopleUsers;
 
-            filteredData = currData.filter(item => {
+            filteredData = currData.filter((item) => {
                 const lc = item.name.toLowerCase();
                 const lcEmail = item.email.toLowerCase();
                 text = text.toLowerCase();
@@ -80,40 +68,36 @@ const FindPeopleScreen = (props) => {
         } else {
             setData(findPeopleUsers);
         }
-    }
-
+    };
 
     const followHandlerForData = (id) => {
         //follow handler to remove item from search data i.e. data state
         let searchData = data;
-        searchData = searchData.filter(i => i._id !== id);
+        searchData = searchData.filter((i) => i._id !== id);
         setData(searchData);
-    }
+    };
 
-
-
-    if(error){
+    if (error) {
         return (
-            <View style={styles.centered} >
+            <View style={styles.centered}>
                 <Text>An error occured.</Text>
-                <Button onPress={loadFindPeople} color={Colors.primary} >
+                <Button onPress={loadFindPeople} color={Colors.primary}>
                     <Text>Try again</Text>
                 </Button>
             </View>
         );
     }
 
-
-    if(isLoading){
+    if (isLoading) {
         return (
-            <View style={styles.centered} >
-                <ActivityIndicator size='large' color={Colors.primary} />
+            <View style={styles.centered}>
+                <ActivityIndicator size="large" color={Colors.primary} />
             </View>
         );
     }
 
     return (
-        <Container style={{ backgroundColor: '#fff' }} >
+        <Container style={{ backgroundColor: '#fff' }}>
             <Header style={{ backgroundColor: Colors.brightBlue }} searchBar rounded>
                 <Item>
                     <Icon name="ios-search" />
@@ -123,16 +107,16 @@ const FindPeopleScreen = (props) => {
                         placeholder={`Search by name or email...`}
                     />
                     <Text>{data.length}</Text>
-                    <Icon name="ios-people"  />
+                    <Icon name="ios-people" />
                 </Item>
             </Header>
-            { data.length === 0 && (
+            {data.length === 0 && (
                 <View style={styles.centered}>
-                    <Text style={{ fontSize: 18, margin: 10 }} >No users found.</Text>
+                    <Text style={{ fontSize: 18, margin: 10 }}>No users found.</Text>
                     <Text>Either you are already following the user</Text>
                     <Text>or no user exists with that name.</Text>
                 </View>
-            ) }
+            )}
             <FlatList
                 style={styles.list}
                 refreshing={isRefreshing}
@@ -140,13 +124,11 @@ const FindPeopleScreen = (props) => {
                 contentContainerStyle={styles.listContainer}
                 data={data}
                 horizontal={false}
-                numColumns={2}
+                numColumns={1}
                 keyExtractor={(item) => {
                     return item._id;
                 }}
-                renderItem={({ item }) => (
-                    <UserList item={item} followHandler={followHandlerForData} />
-                )} 
+                renderItem={({ item }) => <UserList item={item} followHandler={followHandlerForData} />}
             />
         </Container>
     );
@@ -157,7 +139,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        margin: 30
+        margin: 30,
     },
     container: {
         flex: 1,
@@ -165,10 +147,11 @@ const styles = StyleSheet.create({
     list: {
         paddingHorizontal: 5,
         // backgroundColor: "#E6E6E6",
-        backgroundColor: '#fff'
+        backgroundColor: '#fff',
     },
     listContainer: {
-        alignItems: 'center'
+        // alignItems: 'center',
+        paddingHorizontal: 5,
     },
 });
 
