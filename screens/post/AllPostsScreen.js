@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'white'
+        backgroundColor: Colors.grayColor,
     },
     centered: {
         flex: 1,
